@@ -1,0 +1,482 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Times New Roman', sans-serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+ul {
+  list-style: none;
+}
+
+/* Layout */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 260px;
+  padding: 20px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+  transition: background 0.4s ease, border-right 0.4s ease, color 0.4s ease;
+}
+
+.sidebar img.logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+.sidebar h2 {
+  font-size: 20px;
+  margin: 10px 0 5px;
+  font-weight: 700;
+}
+.sidebar h3,
+.sidebar p {
+  text-align: center;
+  margin: 2px 0;
+}
+.sidebar nav {
+  margin-top: 20px;
+  width: 100%;
+}
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  gap: 10px;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+.sidebar .material-icons {
+  font-size: 20px;
+}
+
+/* Main Content */
+.main-content {
+  margin-left: 260px;
+  padding: 40px;
+  flex: 1;
+  overflow-y: auto;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+header h1 {
+  font-size: 24px;
+  transition: color 0.4s ease;
+}
+.top-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Cards */
+.card {
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+.card h3 {
+  margin-bottom: 15px;
+  transition: color 0.4s ease;
+}
+
+/* Stats */
+.stats {
+  display: flex;
+  gap: 20px;
+}
+.stat-box {
+  flex: 1;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+.stat-box h4 {
+  margin-bottom: 8px;
+  transition: color 0.4s ease;
+}
+.stat-box p {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Form */
+form {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+form select,
+form input,
+form textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  flex: 1 1 100%;
+  min-width: 150px;
+  transition: background 0.4s ease, color 0.4s ease, border 0.4s ease;
+}
+form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+form label.priority-label {
+  font-weight: 500;
+  width: 100%;
+  margin-top: 10px;
+}
+form input[type="range"] {
+  width: 100%;
+  accent-color: #2e5bd8;
+}
+form button {
+  background: #2e5bd8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.4s ease;
+}
+form button:hover {
+  background: #1a3fa1;
+}
+
+/* History List */
+.history-list li {
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  padding: 25px;
+  border-radius: 10px;
+  width: 300px;
+  text-align: center;
+  position: relative;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+.close-btn {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  cursor: pointer;
+  font-size: 20px;
+}
+.modal-content button {
+  margin-top: 20px;
+  background: #2e5bd8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+/* Leave Entitlement Table */
+.leave-table-container {
+  margin-top: 25px;
+}
+.leave-table-container h4 {
+  margin-bottom: 10px;
+  transition: color 0.4s ease;
+}
+.leave-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+  transition: background 0.4s ease, color 0.4s ease;
+}
+.leave-table th,
+.leave-table td {
+  padding: 10px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  transition: border-bottom 0.4s ease;
+}
+.leave-table th {
+  color: #1a3fa1;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+.leave-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Leave List */
+.leave-list {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.leave-item {
+  padding: 10px 15px;
+  border-left: 4px solid #2e5bd8;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.leave-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  color: black;
+}
+.leave-detail {
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: background 0.4s ease, color 0.4s ease;
+}
+.leave-detail h4 {
+  margin-bottom: 10px;
+  transition: color 0.4s ease;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  body {
+    margin-left: 0;
+    padding-top: 100px;
+  }
+  .dashboard-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    position: fixed;
+    height: auto;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .sidebar nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 20px;
+  }
+}
+
+/* Section Toggle */
+.content-section {
+  display: none;
+}
+.content-section:first-of-type {
+  display: block;
+}
+
+/* Theme Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 26px;
+  transition: 0.4s;
+}
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+input:checked + .slider {
+  background-color: #2e5bd8;
+}
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* --- DARK MODE (Default Theme) --- */
+body {
+  background: #1c2732;
+  color: #f5f5f5;
+}
+.sidebar {
+  background: #111a21;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f5f5f5;
+}
+.sidebar nav a {
+  color: #fff;
+}
+.sidebar nav a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.main-content {
+  background: transparent;
+}
+.card,
+.modal-content,
+.stat-box,
+.leave-table,
+.leave-detail {
+  background: #253341;
+  color: #f5f5f5;
+}
+header h1,
+.card h3,
+.stat-box h4,
+.leave-table th,
+.leave-table-container h4,
+.leave-detail h4 {
+  color: #3b82f6;
+}
+form select,
+form input,
+form textarea {
+  background: #253341;
+  color: #f5f5f5;
+  border: 1px solid #445566;
+}
+.leave-table th {
+  background: #2a3c50;
+  color: #f5f5f5;
+}
+.leave-table td {
+  border-bottom: 1px solid #445566;
+}
+.leave-item {
+  background: #3b82f6;
+  color: white;
+  border-left: 4px solid #3b82f6;
+}
+.leave-item:hover {
+  background: #5494ff;
+  color: white;
+}
+.top-controls p {
+  color: #f5f5f5;
+}
+
+/* --- LIGHT MODE (Overrides) --- */
+body.light {
+  background: #eef2f7;
+  color: #333333;
+}
+body.light .sidebar {
+  background: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  color: #555555;
+}
+body.light .sidebar nav a {
+  color: #555555;
+}
+body.light .sidebar nav a:hover {
+  background: #e6f2ff;
+  color: #0066cc;
+}
+body.light .card,
+body.light .modal-content,
+body.light .stat-box,
+body.light .leave-table,
+body.light .leave-detail {
+  background: #ffffff;
+  color: #333333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+body.light header h1,
+body.light .card h3,
+body.light .stat-box h4,
+body.light .leave-table th,
+body.light .leave-table-container h4,
+body.light .leave-detail h4 {
+  color: #4b6a88;
+}
+body.light form select,
+body.light form input,
+body.light form textarea {
+  background: #ffffff;
+  color: #333333;
+  border: 1px solid #cccccc;
+}
+body.light .leave-table th {
+  background: #f0f4f7;
+  color: #4b6a88;
+}
+body.light .leave-table td {
+  border-bottom: 1px solid #e0e0e0;
+}
+body.light .leave-item {
+  background: #f0f4f7;
+  color: #333333;
+  border-left: 4px solid #4b6a88;
+}
+body.light .leave-item:hover {
+  background: #e6efff;
+  color: #4b6a88;
+}
+body.light .top-controls p {
+  color: #555555;
+}
