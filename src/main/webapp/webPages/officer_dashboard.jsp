@@ -1,293 +1,293 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    // Get officer ID from session
+    Object officerObj = session.getAttribute("global_control_no");
+    String officerId = (officerObj != null) ? officerObj.toString() : null;
+
+    // Officer details
+    String empName = "", dob = "", doa = "", designation = "", billUnit = "", zone = "";
+
+    // Last Approved/Rejected Application
+    String lastCtrlNo = "", lastEmpName = "", lastFrom = "", lastTo = "", lastStatus = "";
+
+    // Latest Pending Application
+    String pendingCtrlNo = "", pendingEmpName = "", pendingFrom = "", pendingTo = "", pendingType = "";
+
+    Connection con = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+    try {
+        Class.forName("oracle.jdbc.driver.OracleDriver");
+        con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/pdbclw", "Shantodeep", "123");
+
+        // Officer details from emp_master
+        ps = con.prepareStatement(
+            "SELECT EMPNAME, TO_CHAR(EMPDOB,'DD/MM/YYYY') AS DOB, " +
+            "TO_CHAR(EMPDOA,'DD/MM/YYYY') AS DOA, DESIGNATION, BILLUNIT, ZONE " +
+            "FROM emp_master WHERE CONTROL_NO = ?"
+        );
+        ps.setString(1, officerId);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            empName = rs.getString("EMPNAME");
+            dob = rs.getString("DOB");
+            doa = rs.getString("DOA");
+            designation = rs.getString("DESIGNATION");
+            billUnit = rs.getString("BILLUNIT");
+            zone = rs.getString("ZONE");
+        }
+        rs.close();
+        ps.close();
+
+        // Last Approved/Rejected Application by officer
+        ps = con.prepareStatement(
+            "SELECT e.CONTROL_NO, m.EMPNAME, " +
+            "TO_CHAR(e.LEAVE_FROM_DT,'DD/MM/YYYY') AS FROM_DT, " +
+            "TO_CHAR(e.LEAVE_TO_DT,'DD/MM/YYYY') AS TO_DT, " +
+            "CASE WHEN e.LEAVE_STATS = 'A' THEN 'Approved' WHEN e.LEAVE_STATS = 'R' THEN 'Rejected' ELSE e.LEAVE_STATS END AS STATUS " +
+            "FROM emp_leave_tran e " +
+            "JOIN emp_master m ON e.CONTROL_NO = m.CONTROL_NO " +
+            "WHERE  e.LEAVE_STATS IN ('A','R') " +
+            "ORDER BY e.LEAVE_APPR_REJ_DATE DESC FETCH FIRST 1 ROWS ONLY"
+        );
+        
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            lastCtrlNo = rs.getString("CONTROL_NO");
+            lastEmpName = rs.getString("EMPNAME");
+            lastFrom = rs.getString("FROM_DT");
+            lastTo = rs.getString("TO_DT");
+            lastStatus = rs.getString("STATUS");
+        }
+        rs.close();
+        ps.close();
+
+        // Latest Pending Application for officer
+       ps = con.prepareStatement(
+    "SELECT * FROM (" +
+    "SELECT e.CONTROL_NO, m.EMPNAME, " +
+    "TO_CHAR(e.LEAVE_FROM_DT,'DD/MM/YYYY') AS FROM_DT, " +
+    "TO_CHAR(e.LEAVE_TO_DT,'DD/MM/YYYY') AS TO_DT, e.LEAVE_TYPE " +
+    "FROM emp_leave_tran e " +
+    "JOIN emp_master m ON e.CONTROL_NO = m.CONTROL_NO " +
+    "WHERE UPPER(e.LEAVE_STATS) = 'F' " +
+    "ORDER BY e.APP_DATE DESC" +
+    ") WHERE ROWNUM = 1"
+);
+
+rs = ps.executeQuery();
+if (rs.next()) {
+    pendingCtrlNo = rs.getString("CONTROL_NO");
+    pendingEmpName = rs.getString("EMPNAME");
+    pendingFrom = rs.getString("FROM_DT");
+    pendingTo = rs.getString("TO_DT");
+    pendingType = rs.getString("LEAVE_TYPE");
+}
+
+        rs.close();
+        ps.close();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        if (rs != null) rs.close();
+        if (ps != null) ps.close();
+        if (con != null) con.close();
+    }
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Officer Dashboard</title>
-  <link rel="stylesheet" href="/CLW_LEAVE/cssFiles/dashboard.css" />
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<meta charset="UTF-8">
+<title>Officer Dashboard</title>
+<link rel="stylesheet" href="/CLW_LEAVE/cssFiles/dashboard.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root {
+    --card-bg-dark: #1e2a38;
+    --card-bg-light: #ffffff;
+    --text-dark: #eee;
+    --text-light: #222;
+    --accent-color: #00e6e6;
+    --border-light: #dde2e6;
+    --card-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --neon-border: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color);
+    --neon-border-hover: 0 0 15px var(--accent-color), 0 0 30px var(--accent-color);
+}
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Times New Roman', sans-serif;
-      transition: background 0.3s, color 0.3s;
-    }
+body {
+    margin: 0;
+    font-family: "Times New Roman", sans-serif;
+}
 
-    /* Dark Mode (Default) */
-    body.dark {
-      background-color: #1c2732;
-      color: white;
-    }
+body.dark-mode {
+    background: #0f2027;
+    color: var(--text-dark);
+}
 
-    /* Light Mode (Professional) */
-    body.light {
-      background-color: #f5f5f5;
-      color: black;
-    }
+body.light-mode {
+    background: #f4f7f6;
+    color: var(--text-light);
+}
 
-    .dashboard-container {
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-    }
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 40px 0;
+}
 
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: 260px;
-      background: rgba(30, 30, 30, 0.6);
-      backdrop-filter: blur(20px);
-      border-right: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 100;
-    }
+.main-content {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
 
-    .main-content {
-      flex-grow: 1;
-      margin-left: 280px; /* Added space to avoid overlap */
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+.card-container, .card {
+    background: var(--card-bg-dark);
+    border-radius: 12px;
+    border: 2px solid var(--accent-color);
+    box-shadow: var(--neon-border);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
 
-    h2 {
-      font-size: 28px;
-      margin: 20px 0;
-      text-align: center;
-      width: 100%;
-    }
+.card-container {
+    padding: 30px;
+}
 
-    table {
-      width: 96%;
-      max-width: 1600px;
-      border-collapse: collapse;
-      font-family: 'Times New Roman', sans-serif;
-      border-radius: 12px;
-      overflow: hidden;
-      margin: auto;
-    }
+.bottom-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
 
-    /* Dark mode table */
-    body.dark table {
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(8px);
-    }
-    body.dark thead {
-      background-color: rgba(41, 98, 255, 0.8);
-      color: white;
-    }
-    body.dark th, body.dark td {
-      color: #f5f5f5;
-    }
+.bottom-container .card {
+    flex-basis: 48%;
+    padding: 25px;
+}
 
-    /* Light mode table */
-    body.light table {
-      background: white;
-      border: 1px solid #ddd;
-    }
-    body.light thead {
-      background-color:rgba(41, 98, 255, 0.8);
-      color: black;
-    }
-    body.light th, body.light td {
-      color: black;
-    }
+body.light-mode .card-container,
+body.light-mode .card {
+    background: var(--card-bg-light);
+    color: var(--text-light);
+    border-color: var(--border-light);
+    box-shadow: var(--card-shadow-light);
+}
 
-    th, td {
-      padding: 16px 18px;
-      text-align: center;
-      font-size: 15px;
-      border: 1.5px solid #ccc;
-    }
+.card-container:hover, .card:hover {
+    transform: translateY(-5px) scale(1.02);
+    z-index: 2;
+}
 
-    tbody tr:nth-child(even) {
-      background-color: rgba(255, 255, 255, 0.05);
-    }
+body.dark-mode .card-container:hover,
+body.dark-mode .card:hover {
+    box-shadow: var(--neon-border-hover);
+}
 
-    tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.12);
-      transition: background 0.3s ease;
-    }
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 30px;
+}
 
-    /* Light mode hover fix */
-    body.light tbody tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    body.light tbody tr:hover {
-      background-color: #eaeaea;
-    }
+.theme-toggle input {
+    display: none;
+}
 
-    .approve-btn,
-    .reject-btn {
-      display: inline-block;
-      border: none;
-      border-radius: 9999px;
-      padding: 8px 20px;
-      font-size: 14px;
-      font-weight: bold;
-      color: white;
-      cursor: pointer;
-      width: 100px;
-      margin: 5px auto;
-    }
+.theme-toggle label {
+    cursor: pointer;
+    width: 50px;
+    height: 25px;
+    background: #555;
+    display: block;
+    border-radius: 25px;
+    position: relative;
+}
 
-    .approve-btn {
-      background-color: #28a745;
-    }
-    .reject-btn {
-      background-color: #dc3545;
-    }
-    .approve-btn:hover {
-      background-color: #218838;
-    }
-    .reject-btn:hover {
-      background-color: #c82333;
-    }
+.theme-toggle label::after {
+    content: "";
+    width: 21px;
+    height: 21px;
+    background: white;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    border-radius: 50%;
+    transition: 0.3s;
+}
 
-    /* Theme toggle button */
-    .theme-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 45px;
-      height: 45px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      backdrop-filter: blur(5px);
-      z-index: 2000;
-    }
-    .theme-toggle .material-icons {
-      font-size: 24px;
-    }
-    body.light .theme-toggle {
-      background: rgba(0, 0, 0, 0.1);
-    }
-  </style>
+.theme-toggle input:checked + label {
+    background: var(--accent-color);
+}
+
+.theme-toggle input:checked + label::after {
+    left: 27px;
+}
+</style>
 </head>
-
-<body class="dark">
-<!-- Theme toggle -->
+<body class="dark-mode">
 <div class="theme-toggle">
-  <span class="material-icons">wb_sunny</span>
+    <input type="checkbox" id="toggleTheme">
+    <label for="toggleTheme"></label>
 </div>
 
 <div class="dashboard-container">
-  <aside class="sidebar">
-    <jsp:include page="../backgroundProcess/dynamicMenu.jsp" />
-  </aside>
+    <aside class="sidebar">
+        <jsp:include page="../backgroundProcess/dynamicMenu.jsp" />
+    </aside>
 
-  <div class="main-content">
-    <h2>🛡 Leave Applications Received</h2>
-    <table>
-      <thead>
-      <tr>
-        <th>Leave ID</th>
-        <th>Control No</th>
-        <th>Type</th>
-        <th>From</th>
-        <th>Time From</th>
-        <th>To</th>
-        <th>Time To</th>
-        <th>Reason</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-      </thead>
-      <tbody>
-<%
-  Connection con = null;
-  PreparedStatement ps = null;
-  ResultSet rs = null;
-  try {
-    Class.forName("oracle.jdbc.driver.OracleDriver");
-    con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/pdbclw", "Shantodeep", "123");
+    <main class="main-content">
+        <!-- Officer Details -->
+        <div class="card-container">
+            <h3>🛡 Officer Details</h3>
+            <p><b>Name:</b> <%= empName %></p>
+            <p><b>Date of Birth:</b> <%= dob %></p>
+            <p><b>Date of Appointment:</b> <%= doa %></p>
+            <p><b>Designation:</b> <%= designation %></p>
+            <p><b>Bill Unit:</b> <%= billUnit %></p>
+            <p><b>Zone:</b> <%= zone %></p>
+        </div>
 
-    String sql = "SELECT leave_id, control_no, leave_type, TO_CHAR(leave_from_dt,'DD/MM/YYYY'), leave_from_time, TO_CHAR(leave_to_dt,'DD/MM/YYYY'), leave_to_time, leave_purpose, leave_stats " +
-                 "FROM emp_leave_tran WHERE leave_stats = 'F' AND sanction_authority IS NOT NULL";
-    ps = con.prepareStatement(sql);
-    rs = ps.executeQuery();
-    while (rs.next()) {
-      String leave_id = rs.getString(1);
-      String control_no = rs.getString(2);
-      String type = rs.getString(3);
-      String from = rs.getString(4);
-      String timeFrom = rs.getString(5);
-      String to = rs.getString(6);
-      String timeTo = rs.getString(7);
-      String reason = rs.getString(8);
-      String status = rs.getString(9);
-%>
-      <tr>
-        <td><%= leave_id %></td>
-        <td><%= control_no %></td>
-        <td><%= type %></td>
-        <td><%= from %></td>
-        <td><%= timeFrom %></td>
-        <td><%= to %></td>
-        <td><%= timeTo %></td>
-        <td><%= reason %></td>
-        <td><%= status %></td>
-        <td>
-          <form action="updateOfficerDecision.jsp" method="post">
-            <input type="hidden" name="leave_id" value="<%= leave_id %>">
-            <input type="hidden" name="control_no" value="<%= control_no %>">
-            <input type="submit" name="decision" value="Approve" class="approve-btn">
-            <input type="submit" name="decision" value="Reject" class="reject-btn">
-          </form>
-        </td>
-      </tr>
-<%
-    }
-  } catch (Exception e) {
-    out.println("<tr><td colspan='10'>Error: " + e.getMessage() + "</td></tr>");
-  } finally {
-    if (rs != null) rs.close();
-    if (ps != null) ps.close();
-    if (con != null) con.close();
-  }
-%>
-      </tbody>
-    </table>
-  </div>
+        <!-- Lower Section -->
+        <div class="bottom-container">
+            <div class="card">
+                <h4>📄 Last Approved/Rejected Application</h4>
+                <p><b>Control No:</b> <%= lastCtrlNo %></p>
+                <p><b>Name:</b> <%= lastEmpName %></p>
+                <p><b>From:</b> <%= lastFrom %></p>
+                <p><b>To:</b> <%= lastTo %></p>
+                <p><b>Status:</b> <%= lastStatus %></p>
+            </div>
+            <div class="card">
+                <h4>⏳ Latest Pending Application</h4>
+                <p><b>Control No:</b> <%= pendingCtrlNo %></p>
+                <p><b>Name:</b> <%= pendingEmpName %></p>
+                <p><b>From:</b> <%= pendingFrom %></p>
+                <p><b>To:</b> <%= pendingTo %></p>
+                <p><b>Leave Type:</b> <%= pendingType %></p>
+            </div>
+        </div>
+    </main>
 </div>
 
-<!-- Theme Toggle Script -->
 <script>
-  const body = document.body;
-  const toggle = document.querySelector('.theme-toggle');
-  const icon = toggle.querySelector('.material-icons');
-
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'light') {
-    body.classList.add('light');
-    body.classList.remove('dark');
-    icon.textContent = 'nights_stay';
-  }
-
-  toggle.addEventListener('click', () => {
-    body.classList.toggle('light');
-    body.classList.toggle('dark');
-    if (body.classList.contains('light')) {
-      localStorage.setItem('theme', 'light');
-      icon.textContent = 'nights_stay';
+document.getElementById("toggleTheme").addEventListener("change", function() {
+    if (this.checked) {
+        document.body.classList.remove("dark-mode");
+        document.body.classList.add("light-mode");
     } else {
-      localStorage.setItem('theme', 'dark');
-      icon.textContent = 'wb_sunny';
+        document.body.classList.remove("light-mode");
+        document.body.classList.add("dark-mode");
     }
-  });
+});
 </script>
 </body>
 </html>

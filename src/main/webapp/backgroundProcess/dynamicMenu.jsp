@@ -38,6 +38,7 @@
       </p>
       <%
       	if(global_usertype.equals("emp")) {
+      		
       		%>
       			<nav>
 			      	<a href="/CLW_LEAVE/webPages/dashboard.jsp"><span class="material-icons">bar_chart</span> Dashboard</a>
@@ -45,23 +46,28 @@
 			        <a  href="/CLW_LEAVE/webPages/new_app.jsp"><span class="material-icons">note_add</span> New Application</a>
 			        <a href="/CLW_LEAVE/webPages/past_sanc.jsp" ><span class="material-icons">task_alt</span> Past Sanctioned</a>
 			        <a href="/CLW_LEAVE/webPages/my_app.jsp"><span class="material-icons">history</span> My Applications</a>
+			         <a href="/CLW_LEAVE/webPages/logout.jsp"><span class="material-icons">history</span>Logout</a>
 			  	</nav>
       		<%
       	} else if(global_usertype.equals("clerk")) {
+      		response.sendRedirect("dealing_clerk_dashboard.jsp");
       		%>
   			<nav>
-		      	<a href="/CLW_LEAVE/webPages/dashboard.jsp"><span class="material-icons">bar_chart</span> Dashboard</a>
+		      	<a href="/CLW_LEAVE/webPages/dealing_clerk_dashboard.jsp"><span class="material-icons">bar_chart</span> Dashboard</a>
 		        <a href="/CLW_LEAVE/webPages/receivedApp.jsp"><span class="material-icons">bar_chart</span> Received Applications</a>
+		        <a href="/CLW_LEAVE/webPages/logout.jsp"><span class="material-icons">history</span>Logout</a>
+		        
 		       
 		  	</nav>
   		<%
       	}  else if(global_usertype.equals("admin")) {
+      		response.sendRedirect("officer_dashboard.jsp");
       		%>
   			<nav>
 		      	<a href="/CLW_LEAVE/webPages/dashboard.jsp"><span class="material-icons">bar_chart</span> Dashboard</a>
 		       <a href="/CLW_LEAVE/webPages/officer_dashboard.jsp"><span class="material-icons">bar_chart</span>Pending Applications</a>
+		       <a href="/CLW_LEAVE/webPages/logout.jsp"><span class="material-icons">history</span>Logout</a>
 		  	</nav>
   		<%
       	} 
       %>
-      
